@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Run TARA",
+            "request": "launch",
+            "mainClass": "com.tara.Main",
+            "projectName": "TaraAssistant",
+            "vmArgs": "--module-path D:/projects/TARA/TaraAssistant/lib/javafx-sdk-21.0.9/lib --add-modules javafx.controls,javafx.graphics"
+        }
+    ]
+}

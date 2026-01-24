@@ -1,0 +1,6 @@
+D:\projects\TARA\TaraAssistant\src\main\java\com\tara\Main.java
+D:\projects\TARA\TaraAssistant\src\main\java\com\tara\audio\MicrophoneListener.java
+D:\projects\TARA\TaraAssistant\src\main\java\com\tara\core\AppController.java
+D:\projects\TARA\TaraAssistant\src\main\java\com\tara\core\CommandProcessor.java
+D:\projects\TARA\TaraAssistant\src\main\java\com\tara\stt\SpeechRecognizer.java
+D:\projects\TARA\TaraAssistant\src\main\java\com\tara\tts\Speaker.java
