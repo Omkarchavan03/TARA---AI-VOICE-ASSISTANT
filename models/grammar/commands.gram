@@ -1,0 +1,31 @@
+#JSGF V1.0;
+
+grammar commands;
+
+/* =========================
+   ACTION WORDS
+   ========================= */
+<open> = open | start | launch ;
+<close> = close | exit | stop ;
+
+/* =========================
+   APPLICATIONS / SITES
+   ========================= */
+<chrome> = chrome | google chrome ;
+<youtube> = youtube ;
+<vscode> = vscode | visual studio code | vs code ;
+<github> = github ;
+
+/* =========================
+   MAIN COMMANDS
+   ========================= */
+public <command> =
+      <open> <chrome>
+    | <open> <youtube>
+    | <open> <vscode>
+    | <open> <github>
+    | <close> <chrome>
+    | <close> <youtube>
+    | <close> <vscode>
+    | <close> <github>
+    ;

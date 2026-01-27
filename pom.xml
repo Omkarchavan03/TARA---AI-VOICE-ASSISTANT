@@ -1,23 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tara</groupId>
     <artifactId>TaraAssistant</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
+    <name>TARA Voice Assistant</name>
+
     <properties>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
         <javafx.version>21.0.9</javafx.version>
     </properties>
 
     <dependencies>
-        <!-- JavaFX -->
+
+        <!-- ===== JavaFX ===== -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -29,23 +32,25 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- Vosk (Offline STT) -->
+        <!-- ===== Vosk ===== -->
         <dependency>
             <groupId>org.vosk</groupId>
             <artifactId>vosk</artifactId>
             <version>0.3.45</version>
         </dependency>
+
+        <!-- ===== JNA ===== -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.13.0</version>
         </dependency>
 
-        <!-- MaryTTS (Offline TTS) -->
+        <!-- ===== MaryTTS (installed locally with exact names) ===== -->
         <dependency>
             <groupId>de.dfki.mary</groupId>
             <artifactId>marytts-runtime</artifactId>
-            <version>5.2</version>
+            <version>5.2-jar-with-dependencies</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/marytts-runtime-5.2-jar-with-dependencies.jar</systemPath>
         </dependency>
@@ -62,38 +67,53 @@
             <version>5.2</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/voice-cmu-slt-hsmm-5.2.jar</systemPath>
-      </dependency>
-    
-     </dependencies>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+    </dependencies>
 
     <build>
         <plugins>
-            <!-- Compiler -->
+
+            <!-- ===== Compiler ===== -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>17</release>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
 
-            <!-- Exec Plugin to run Main -->
+            <!-- ===== Shade Plugin for Fat Jar ===== -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <mainClass>com.tara.Main</mainClass>
-                    <commandlineArgs></commandlineArgs>
-                    <arguments>
-                        <argument>--module-path</argument>
-                        <argument>${project.basedir}/lib/javafx-sdk-21.0.9/lib</argument>
-                        <argument>--add-modules</argument>
-                        <argument>javafx.controls,javafx.graphics</argument>
-                    </arguments>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>TaraAssistant-jar-with-dependencies</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.tara.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
         </plugins>
     </build>
 

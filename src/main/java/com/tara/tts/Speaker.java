@@ -4,75 +4,81 @@ import marytts.MaryInterface;
 import marytts.LocalMaryInterface;
 import marytts.util.data.audio.AudioPlayer;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Speaker {
 
     private final MaryInterface mary;
+    private final BlockingQueue<String> queue = new LinkedBlockingQueue<>();
     private final AtomicBoolean speaking = new AtomicBoolean(false);
+
+    // 🔥 REQUIRED: track current audio
+    private volatile AudioPlayer currentPlayer;
 
     public Speaker() throws Exception {
         mary = new LocalMaryInterface();
+
+        // 🔥 SINGLE background TTS thread
+        new Thread(this::speechLoop, "TTS-Main-Thread").start();
     }
 
-    /**
-     * Speak the given text asynchronously
-     */
-    public void speak(String text) {
-        if (text == null || text.isEmpty()) return;
-
-        new Thread(() -> {
+    private void speechLoop() {
+        while (true) {
             try {
+                String text = queue.take(); // waits
                 speaking.set(true);
 
-                // Generate audio
-                AudioPlayer player = new AudioPlayer(mary.generateAudio(text));
-                player.start();
-                player.join(); // wait until finished
+                currentPlayer = new AudioPlayer(mary.generateAudio(text));
+                currentPlayer.start();
+                currentPlayer.join();
 
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 speaking.set(false);
+                currentPlayer = null;
             }
-        }, "TTS-Thread").start(); // Name the thread for easier debugging
-    }
-
-    /**
-     * Speak synchronously (blocking call)
-     */
-    public void speakSync(String text) {
-        if (text == null || text.isEmpty()) return;
-
-        try {
-            speaking.set(true);
-            AudioPlayer player = new AudioPlayer(mary.generateAudio(text));
-            player.start();
-            player.join();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            speaking.set(false);
         }
     }
 
     /**
-     * Check if TTS is currently speaking
+     * Queue speech (NON-BLOCKING)
+     */
+    public void speak(String text) {
+        if (text == null || text.isBlank()) return;
+
+        // prevent huge speeches killing UX
+        if (text.length() > 400) {
+            text = text.substring(0, 400) + "...";
+        }
+
+        queue.offer(text);
+    }
+
+    /**
+     * Check if speaking or pending speech
      */
     public boolean isSpeaking() {
-        return speaking.get();
+        return speaking.get() || !queue.isEmpty();
     }
 
     /**
-     * Stop speaking immediately (if needed)
+     * Stop all speech immediately
      */
+    @SuppressWarnings("deprecation") // AudioPlayer internally uses Thread.stop()
     public void stop() {
-        try {
-            mary.generateAudio("").close(); // quick hack to reset MaryTTS
-        } catch (Exception e) {
-            // ignore
-        } finally {
-            speaking.set(false);
+        queue.clear();
+
+        if (currentPlayer != null) {
+            // ✅ SAFE shutdown first
+            currentPlayer.interrupt();
+
+            // ✅ fallback (MaryTTS internal behavior)
+            currentPlayer.stop();
         }
+
+        speaking.set(false);
     }
 }

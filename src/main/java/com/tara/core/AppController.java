@@ -3,63 +3,115 @@ package com.tara.core;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 
 public class AppController {
 
-    /** 
-     * Open an application by its executable path.
-     */
     public static void openApp(String appPath) {
         try {
-            System.out.println("[AppController] Opening app: " + appPath);
-            Runtime.getRuntime().exec("cmd /c start \"\" \"" + appPath + "\"");
+            Runtime.getRuntime().exec("cmd /c start \"\" " + appPath);
         } catch (IOException e) {
-            System.err.println("[AppController] Failed to open app: " + appPath);
             e.printStackTrace();
         }
     }
 
-    /** 
-     * Close an application by its executable name (without .exe)
-     */
-    public static void closeApp(String appName) {
+    public static void closeApp(String processName) {
         try {
-            System.out.println("[AppController] Closing app: " + appName);
-            Runtime.getRuntime().exec("taskkill /IM " + appName + ".exe /F");
+            Runtime.getRuntime().exec(
+                    "taskkill /IM " + processName + ".exe /F"
+            );
         } catch (IOException e) {
-            System.err.println("[AppController] Failed to close app: " + appName);
             e.printStackTrace();
         }
     }
 
-    /** 
-     * Kill multiple processes by their executable names.
-     */
     public static void killProcesses(String... processNames) {
         for (String name : processNames) {
             try {
-                System.out.println("[AppController] Killing process: " + name);
-                Runtime.getRuntime().exec("taskkill /IM " + name + ".exe /F");
+                Runtime.getRuntime().exec(
+                        "taskkill /IM " + name + ".exe /F"
+                );
             } catch (IOException e) {
-                System.err.println("[AppController] Failed to kill process: " + name);
                 e.printStackTrace();
             }
         }
     }
 
-    /** 
-     * Open a website in the default browser.
-     */
     public static void openWebsite(String url) {
         try {
-            System.out.println("[AppController] Opening website: " + url);
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().browse(new URI(url));
-            } else {
-                System.err.println("[AppController] Desktop not supported. Cannot open website.");
             }
         } catch (Exception e) {
-            System.err.println("[AppController] Failed to open website: " + url);
+            e.printStackTrace();
+        }
+    }
+
+    public static void searchWeb(String query) {
+        try {
+            String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            openWebsite("https://www.google.com/search?q=" + encoded);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* =====================================================
+       🔥 ADDED FEATURES (NO REMOVALS ABOVE)
+       ===================================================== */
+
+    public static void closeAllUserApps() {
+        List<String> commonApps = Arrays.asList(
+                "chrome", "msedge", "firefox",
+                "notepad", "calc", "mspaint",
+                "explorer", "Code", "taskmgr"
+        );
+
+        for (String app : commonApps) {
+            try {
+                Runtime.getRuntime().exec(
+                        "taskkill /IM " + app + ".exe /F"
+                );
+            } catch (IOException ignored) {}
+        }
+    }
+
+    public static void openNewBrowserTab() {
+        try {
+            Runtime.getRuntime().exec("cmd /c start chrome");
+        } catch (IOException ignored) {}
+    }
+
+    public static void closeBrowserTab() {
+        try {
+            Runtime.getRuntime().exec(
+                    "cmd /c powershell -command " +
+                    "\"$w = New-Object -ComObject wscript.shell; $w.SendKeys('^w')\""
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* =====================================================
+       🔥 WRITE / TYPE SUPPORT (NEW)
+       ===================================================== */
+
+    public static void typeText(String text) {
+        try {
+            if (text == null || text.isBlank()) return;
+
+            String safe = text.replace("\"", "`\"");
+
+            Runtime.getRuntime().exec(
+                    "cmd /c powershell -command " +
+                    "\"$w = New-Object -ComObject wscript.shell; " +
+                    "$w.SendKeys(\\\"" + safe + "\\\")\""
+            );
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

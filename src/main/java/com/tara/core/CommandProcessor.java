@@ -1,7 +1,6 @@
 package com.tara.core;
 
 import com.tara.tts.Speaker;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,64 +10,108 @@ public class CommandProcessor {
     private static final Map<String, String> WEBSITE_COMMANDS = new HashMap<>();
 
     static {
-        // Apps
-        APP_COMMANDS.put("chrome", "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
-        APP_COMMANDS.put("vscode", "C:\\Users\\Dell\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe");
-        APP_COMMANDS.put("vs code", "C:\\Users\\Dell\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe");
+        APP_COMMANDS.put("chrome", "chrome.exe");
+        APP_COMMANDS.put("vscode", "Code.exe");
+        APP_COMMANDS.put("vs code", "Code.exe");
+        APP_COMMANDS.put("notepad", "notepad.exe");
+        APP_COMMANDS.put("calculator", "calc.exe");
+        APP_COMMANDS.put("paint", "mspaint.exe");
+        APP_COMMANDS.put("explorer", "explorer.exe");
+        APP_COMMANDS.put("task manager", "taskmgr.exe");
 
-        // Websites
         WEBSITE_COMMANDS.put("youtube", "https://www.youtube.com");
         WEBSITE_COMMANDS.put("google", "https://www.google.com");
         WEBSITE_COMMANDS.put("github", "https://www.github.com");
+        WEBSITE_COMMANDS.put("facebook", "https://www.facebook.com");
+        WEBSITE_COMMANDS.put("instagram", "https://www.instagram.com");
+        WEBSITE_COMMANDS.put("twitter", "https://www.twitter.com");
     }
 
-    /**
-     * Process a command string. Returns true if a command matched, false otherwise.
-     * Works with normalized text from STT.
-     */
     public static boolean process(String command, Speaker tts) {
+
         if (command == null || command.isEmpty()) return false;
+        command = normalize(command);
 
-        command = command.toLowerCase().replaceAll("[^a-z0-9 ]", "").trim();
+        /* ===== WRITE / TYPE (NEW) ===== */
+        if (command.startsWith("write ") || command.startsWith("type ")) {
+            String text = command.replaceFirst("^(write|type) ", "");
+            tts.speak("Writing");
+            AppController.typeText(text);
+            return true;
+        }
 
-        // Open apps
-        for (Map.Entry<String, String> entry : APP_COMMANDS.entrySet()) {
-            if (command.contains(entry.getKey())) {
-                tts.speak("Opening " + capitalize(entry.getKey()) + " for you");
-                AppController.openApp(entry.getValue());
+        /* ===== CLOSE ===== */
+        if (command.startsWith("close ")) {
+            String target = command.substring(6).trim();
+
+            if (target.equals("chrome")) {
+                tts.speak("Closing Chrome");
+                AppController.closeApp("chrome");
+                return true;
+            }
+
+            if (target.contains("terminal")) {
+                tts.speak("Closing terminals");
+                AppController.killProcesses("cmd", "powershell", "wt");
+                return true;
+            }
+
+            if (target.equals("all")) {
+                tts.speak("Closing all applications");
+                AppController.closeAllUserApps();
+                return true;
+            }
+
+            if (target.equals("tab")) {
+                tts.speak("Closing tab");
+                AppController.closeBrowserTab();
+                return true;
+            }
+
+            return false;
+        }
+
+        /* ===== WEB SEARCH ===== */
+        if (command.startsWith("webopen ")) {
+            String query = command.substring(8).trim();
+            if (!query.isEmpty()) {
+                tts.speak("Searching for " + query);
+                AppController.searchWeb(query);
                 return true;
             }
         }
 
-        // Open websites
-        for (Map.Entry<String, String> entry : WEBSITE_COMMANDS.entrySet()) {
-            if (command.contains(entry.getKey())) {
-                tts.speak("Opening " + capitalize(entry.getKey()) + " for you");
-                AppController.openWebsite(entry.getValue());
+        /* ===== OPEN ===== */
+        if (command.startsWith("open ")) {
+            String target = command.substring(5).trim();
+
+            if (APP_COMMANDS.containsKey(target)) {
+                tts.speak("Opening " + target);
+                AppController.openApp(APP_COMMANDS.get(target));
+                return true;
+            }
+
+            if (WEBSITE_COMMANDS.containsKey(target)) {
+                tts.speak("Opening " + target);
+                AppController.openWebsite(WEBSITE_COMMANDS.get(target));
+                return true;
+            }
+
+            if (target.equals("tab")) {
+                tts.speak("Opening new tab");
+                AppController.openNewBrowserTab();
                 return true;
             }
         }
 
-        // Close apps
-        if (command.contains("close chrome")) {
-            tts.speak("Closing Chrome");
-            AppController.closeApp("chrome");
-            return true;
-        }
-
-        // Kill terminals / command prompts
-        if (command.contains("kill terminal") || command.contains("close terminal")) {
-            tts.speak("Closing all terminals");
-            AppController.killProcesses("cmd", "powershell", "wt");
-            return true;
-        }
-
-        // Fallback: command not recognized
         return false;
     }
 
-    private static String capitalize(String text) {
-        if (text == null || text.isEmpty()) return text;
-        return text.substring(0, 1).toUpperCase() + text.substring(1);
+    private static String normalize(String text) {
+        text = text.toLowerCase().trim();
+        text = text.replaceAll("[^a-z0-9 ]", "");
+        text = text.replace("clothes ", "close ");
+        text = text.replace("clothe ", "close ");
+        return text;
     }
 }

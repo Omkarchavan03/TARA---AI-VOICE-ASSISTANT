@@ -1,0 +1,53 @@
+[33me36ecb0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m  add brain to assistant
+ .vscode/launch.json                                |     2 [32m+[m[31m-[m
+ .vscode/settings.json                              |     3 [32m+[m[31m-[m
+ lib/sphinx4-core-5prealpha.jar                     |   Bin [31m1259793[m -> [32m0[m bytes
+ log/server.log                                     | 28458 [32m+++++++++++++++++++[m
+ models/grammar/commands.gram                       |    31 [32m+[m
+ models/vosk-model-en-in-0.5/README                 |     3 [32m+[m
+ .../vosk-model-en-in-0.5/am/final.mdl              |   Bin [31m35643722[m -> [32m65313416[m bytes
+ .../am/frame_subsampling_factor                    |     1 [32m+[m
+ models/vosk-model-en-in-0.5/conf/mfcc.conf         |     8 [32m+[m
+ .../conf/model.conf                                |    10 [32m+[m[31m-[m
+ models/vosk-model-en-in-0.5/graph/HCLG.fst         |   Bin [31m0[m -> [32m467406729[m bytes
+ .../graph/phones/word_boundary.int                 |    88 [32m+[m
+ .../graph/words.txt}                               |   Bin [31m8288887[m -> [32m8146200[m bytes
+ models/vosk-model-en-in-0.5/ivector/final.dubm     |   Bin [31m0[m -> [32m168048[m bytes
+ models/vosk-model-en-in-0.5/ivector/final.ie       |   Bin [31m0[m -> [32m8288887[m bytes
+ models/vosk-model-en-in-0.5/ivector/final.mat      |   Bin [31m0[m -> [32m22575[m bytes
+ .../vosk-model-en-in-0.5/ivector/global_cmvn.stats |     3 [32m+[m
+ models/vosk-model-en-in-0.5/ivector/ivector.conf   |    12 [32m+[m
+ .../ivector/online_cmvn.conf                       |     0
+ .../ivector/splice.conf                            |     0
+ models/vosk-model-en-in-0.5/rescore/G.carpa        |   Bin [31m0[m -> [32m922132904[m bytes
+ models/vosk-model-en-in-0.5/rescore/G.fst          |   Bin [31m0[m -> [32m87524294[m bytes
+ models/vosk-model-small-en-us-0.15/README          |     9 [31m-[m
+ models/vosk-model-small-en-us-0.15/am/final.mdl    |   Bin [31m15962575[m -> [32m0[m bytes
+ models/vosk-model-small-en-us-0.15/conf/mfcc.conf  |     7 [31m-[m
+ models/vosk-model-small-en-us-0.15/graph/Gr.fst    |   Bin [31m24013795[m -> [32m0[m bytes
+ models/vosk-model-small-en-us-0.15/graph/HCLr.fst  |   Bin [31m22416994[m -> [32m0[m bytes
+ .../graph/disambig_tid.int                         |    17 [31m-[m
+ .../vosk-model-small-en-us-0.15/ivector/final.dubm |   Bin [31m168048[m -> [32m0[m bytes
+ .../vosk-model-small-en-us-0.15/ivector/final.mat  |   Bin [31m44975[m -> [32m0[m bytes
+ .../ivector/global_cmvn.stats                      |     3 [31m-[m
+ pom.xml                                            |    78 [32m+[m[31m-[m
+ src/main/java/com/tara/Main.java                   |   201 [32m+[m[31m-[m
+ src/main/java/com/tara/core/AppController.java     |   106 [32m+[m[31m-[m
+ src/main/java/com/tara/core/CommandProcessor.java  |   115 [32m+[m[31m-[m
+ src/main/java/com/tara/core/OllamaBrain.java       |   217 [32m+[m
+ src/main/java/com/tara/stt/SpeechRecognizer.java   |    12 [32m+[m[31m-[m
+ src/main/java/com/tara/tts/Speaker.java            |    74 [32m+[m[31m-[m
+ src/main/java/com/tara/ui/SphereUI.java            |    96 [32m+[m[31m-[m
+ src/main/java/com/tara/utils/SpeechNormalizer.java |   103 [32m+[m
+ target/classes/com/tara/Main.class                 |   Bin [31m3112[m -> [32m5352[m bytes
+ target/classes/com/tara/core/AppController.class   |   Bin [31m2979[m -> [32m4067[m bytes
+ .../classes/com/tara/core/CommandProcessor.class   |   Bin [31m3500[m -> [32m4089[m bytes
+ .../com/tara/core/OllamaBrain$BrainResult.class    |   Bin [31m0[m -> [32m639[m bytes
+ .../com/tara/core/OllamaBrain$OllamaResponse.class |   Bin [31m0[m -> [32m454[m bytes
+ target/classes/com/tara/core/OllamaBrain.class     |   Bin [31m0[m -> [32m6810[m bytes
+ target/classes/com/tara/stt/SpeechRecognizer.class |   Bin [31m4870[m -> [32m4863[m bytes
+ target/classes/com/tara/tts/Speaker.class          |   Bin [31m2691[m -> [32m3224[m bytes
+ .../com/tara/ui/SphereUI$AssistantState.class      |   Bin [31m1248[m -> [32m1296[m bytes
+ target/classes/com/tara/ui/SphereUI.class          |   Bin [31m9306[m -> [32m7754[m bytes
+ .../classes/com/tara/utils/SpeechNormalizer.class  |   Bin [31m0[m -> [32m3645[m bytes
+ 51 files changed, 29360 insertions(+), 297 deletions(-)

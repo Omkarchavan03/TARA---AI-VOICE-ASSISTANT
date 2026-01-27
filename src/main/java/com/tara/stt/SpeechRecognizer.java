@@ -21,16 +21,16 @@ public class SpeechRecognizer {
     public SpeechRecognizer() throws IOException, LineUnavailableException {
         LibVosk.setLogLevel(LogLevel.INFO);
 
-        // ✅ Small model path (~50MB) for faster recognition
+        // ✅ Update: New model path for Indian English
         String modelPath = System.getProperty("model.path",
-                "D:/projects/TARA/TaraAssistant/models/vosk-model-small-en-us-0.15");
+                "D:/projects/TARA/TaraAssistant/models/vosk-model-en-in-0.5");
 
         Model model = new Model(modelPath);
         recognizer = new Recognizer(model, 16000);
 
         resultsQueue = new LinkedBlockingQueue<>();
 
-        // Audio format: 16kHz, 16-bit, mono
+        // Audio format: 16kHz, 16-bit, mono (matches Vosk model)
         AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
         microphone = (TargetDataLine) AudioSystem.getLine(info);
@@ -55,13 +55,13 @@ public class SpeechRecognizer {
                 int n = microphone.read(buffer, 0, buffer.length);
                 if (n <= 0) continue;
 
-                // Noise filter
+                // Noise filter – adjust amplitude threshold if needed for new model
                 int amplitude = 0;
                 for (int i = 0; i < n; i += 2) {
                     int sample = ((buffer[i + 1] << 8) | (buffer[i] & 0xff));
                     amplitude += Math.abs(sample);
                 }
-                if (amplitude < 2000) continue; // skip very quiet frames
+                if (amplitude < 1800) continue; // slightly lower for Indian English model
 
                 synchronized (recognizer) {
                     boolean accepted = recognizer.acceptWaveForm(buffer, n);
@@ -75,7 +75,7 @@ public class SpeechRecognizer {
                         isSpeaking = false;
                         lastVoiceTime = System.currentTimeMillis();
                     } else {
-                        // Partial result (optional)
+                        // Partial result
                         String partial = recognizer.getPartialResult()
                                 .replaceAll(".*\"partial\"\\s*:\\s*\"(.*?)\".*", "$1")
                                 .trim();
